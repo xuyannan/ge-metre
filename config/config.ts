@@ -65,6 +65,8 @@ if (isAntDesignProPreview) {
 }
 
 export default {
+  publicPath: "/ge-metre/",
+  base: "/ge-metre/",
   plugins,
   block: {
     // 国内用户可以使用码云
@@ -91,16 +93,15 @@ export default {
     },
     {
       path: '/',
-      component: '../layouts/SecurityLayout',
       routes: [
         {
           path: '/',
-          component: '../layouts/BasicLayout',
+          component: '../layouts/BlankLayout',
           authority: ['admin', 'user'],
           routes: [
             {
               path: '/',
-              redirect: '/welcome',
+              redirect: '/metre',
             },
             {
               path: '/welcome',

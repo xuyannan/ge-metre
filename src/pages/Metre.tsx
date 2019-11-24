@@ -15,21 +15,30 @@ export default class Metre extends React.PureComponent {
         // const currentEvent = this.queue.getCurrentEvent(moment('2019-11-24 18:00:00')); 
         const queue = new EventQueue();
         const currentEvent = queue.getCurrentEvent();
+
+        const now = moment();
+        const isWeekend = false; //now.weekday() === 5 || now.weekday() === 6;
+
         this.state = {
             timeRemain,
             now: moment(),
-            queue,
-            currentEvent,
+            queue: isWeekend ? null : queue,
+            currentEvent: isWeekend ? null : currentEvent,
             interval: setInterval(() => {
                 this.timer();
-            }, 1000)
+            }, 1000),
+            isWeekend
         }
 
     }
 
     timer = () => {
         // const currentEvent = this.queue.getCurrentEvent(moment('2019-11-24 18:00:00'));
-        const currentEvent = this.state.queue.getCurrentEvent();
+        const { queue } = this.state;
+        if (!queue) {
+            return null;
+        }
+        const currentEvent = queue.getCurrentEvent();
         this.setState({
             currentEvent
         })
@@ -48,11 +57,12 @@ export default class Metre extends React.PureComponent {
     }
 
     componentDidMount() {
+        const {queue} = this.state;
         // 更新当前时间
         setInterval(() => {
             this.setState({
                 now: moment(),
-                currentEvent: this.state.queue.getCurrentEvent()
+                currentEvent: queue ? queue.getCurrentEvent() : null
             })
         }, 1000);
 
@@ -96,7 +106,7 @@ export default class Metre extends React.PureComponent {
     }
 
     render() {
-        const { timeRemain, now, currentEvent, interval, queue } = this.state;
+        const { timeRemain, now, currentEvent, interval, queue, isWeekend } = this.state;
         const { form } = this.props;
         const seconds = timeRemain % 60;
         const minutes = (timeRemain - seconds) / 60;
@@ -118,7 +128,7 @@ export default class Metre extends React.PureComponent {
                     <Card style={{border: "none"}}>
                         <Row>
                             <Col span={24}>
-                                <p>{now.format('YYYY-MM-DD HH:mm:ss')}</p>
+                                <p><strong style={{fontSize: "1.5em"}}>{now.format('YYYY-MM-DD HH:mm:ss')}</strong></p>
                             </Col>
                         </Row>
                         <Row>
@@ -130,7 +140,7 @@ export default class Metre extends React.PureComponent {
                                         dot={<Icon type={e.type === EventType.Work ? "tool" : "smile"}/>}
                                         color={currentEvent && currentEvent.startAt.diff(e.startAt) === 0 ? "green" : "blue"}
                                     ><p>{e.startAt.format("HH:mm:ss")}<br/>{e.name}</p></Timeline.Item>
-                                )): null}
+                                )): <p>{isWeekend ? "周末愉快!" : "暂无事件"}</p>}
                                 </Timeline>
                             </Col>
                         </Row>
@@ -138,8 +148,8 @@ export default class Metre extends React.PureComponent {
                             <Col span={24}>
                                 {
                                     interval
-                                        ? <Button icon="pause-circle" disabled={!currentEvent || currentEvent.type === EventType.Break} onClick={this.pause}>PAUSE</Button>
-                                        : <Button icon="play-circle" disabled={!currentEvent || currentEvent.type === EventType.Break} onClick={this.start}>START</Button>
+                                        ? <Button icon="pause-circle" disabled={!currentEvent || currentEvent.type === EventType.Break} onClick={this.pause}>暂停计时</Button>
+                                        : <Button icon="play-circle" disabled={!currentEvent || currentEvent.type === EventType.Break} onClick={this.start}>恢复计时</Button>
                                 }
                             </Col>
                             <Col span={24}>
