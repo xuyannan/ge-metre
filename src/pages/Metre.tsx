@@ -11,13 +11,19 @@ export default class Metre extends React.PureComponent {
     constructor(props: any) {
         super(props);
         const timeRemainInStorage = localStorage.getItem(GE_METRE_TIME_REMAIN);
-        let timeRemain = timeRemainInStorage ? parseInt(timeRemainInStorage) : METRE_DURATION;
+        let timeRemain = METRE_DURATION;
+        if (!timeRemainInStorage) {
+            localStorage.setItem(GE_METRE_TIME_REMAIN, METRE_DURATION + "");
+        } else {
+            timeRemain = parseInt(timeRemainInStorage)
+        }
+
         // const currentEvent = this.queue.getCurrentEvent(moment('2019-11-24 18:00:00')); 
         const queue = new EventQueue();
         const currentEvent = queue.getCurrentEvent();
 
         const now = moment();
-        const isWeekend = false; //now.weekday() === 5 || now.weekday() === 6;
+        const isWeekend = now.weekday() === 5 || now.weekday() === 6;
 
         this.state = {
             timeRemain,
@@ -34,7 +40,7 @@ export default class Metre extends React.PureComponent {
 
     timer = () => {
         // const currentEvent = this.queue.getCurrentEvent(moment('2019-11-24 18:00:00'));
-        const { queue } = this.state;
+        const { queue, interval } = this.state;
         if (!queue) {
             return null;
         }
@@ -43,17 +49,33 @@ export default class Metre extends React.PureComponent {
             currentEvent
         })
         if (currentEvent && currentEvent.type == EventType.Work) {
+            console.log(currentEvent.name, currentEvent.type)
             const timeRemainInStorage = localStorage.getItem(GE_METRE_TIME_REMAIN)
             let timeRemain = timeRemainInStorage ? parseInt(timeRemainInStorage) : METRE_DURATION;
+            console.log(timeRemain)
 
             if (timeRemain === 0) {
                 timeRemain = METRE_DURATION
             }
+            console.log(timeRemain)
             this.setState({
                 timeRemain
             })
             localStorage.setItem(GE_METRE_TIME_REMAIN, timeRemain - 1 + "");
+        } else {
+            console.log(interval)
+            if (interval) {
+                clearInterval(this.state.interval);
+            }
         }
+    }
+
+    start = () => {
+        this.setState({
+            interval: setInterval(() => {
+                this.timer();
+            }, 1000)
+        })
     }
 
     componentDidMount() {
@@ -68,6 +90,7 @@ export default class Metre extends React.PureComponent {
 
         //  启动计时
         const { interval } = this.state;
+        console.log('DidMount', interval)
         if (interval) {
             clearInterval(this.state.interval);
         }
@@ -93,14 +116,6 @@ export default class Metre extends React.PureComponent {
         })
     }
 
-    start = () => {
-        this.setState({
-            interval: setInterval(() => {
-                this.timer();
-            }, 1000)
-        })
-    }
-
     hasErrors = (fieldsError: any) => {
         return Object.keys(fieldsError).some(field => fieldsError[field]);
     }
@@ -114,7 +129,7 @@ export default class Metre extends React.PureComponent {
 
         return (
             <Row>
-                <Col span={18} >
+                <Col span={20} >
                     <Card style={{height: "100%", padding: 200, border: "none", textAlign: "center"}}>
                         <div>
                             <span className={styles.time}>{minutes}</span>
@@ -124,7 +139,7 @@ export default class Metre extends React.PureComponent {
                         </div>
                     </Card>
                 </Col>
-                <Col span={6}>
+                <Col span={4}>
                     <Card style={{border: "none"}}>
                         <Row>
                             <Col span={24}>

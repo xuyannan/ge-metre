@@ -13,11 +13,11 @@ const TIME_AFTERNOON_REST_START = [15, 15, 0];
 const TIME_AFTERNOON_WORK_RESUME = [15, 30, 0];
 const TIME_END_OF_WORK_DAY = [17, 5, 0];
 
-// let testHour = 22;
-// let testMinutes = 18;
+// let testHour = 0;
+// let testMinutes = 17;
 // export const METRE_DURATION = 10;
 // const TIME_WORK_START = [testHour, testMinutes, 0];
-// const TIME_MORNING_REST_START = [testHour, testMinutes, 30];
+// const TIME_MORNING_REST_START = [testHour + 1, testMinutes, 30];
 // const TIME_WORK_RESUME = [testHour, testMinutes + 1, 0];
 // const TIME_LANUCH_START = [testHour, testMinutes + 1, 30];
 // const TIME_AFTERNOOT_WORK_START = [testHour, testMinutes + 2, 0];
